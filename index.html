@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title></title>
+</head>
+<script type="text/javascript">
+	(function() {
+  var app = {
+    launchApp: function() {
+      window.location.replace("myApp://share?abc=12&xyz=123");
+      this.timer = setTimeout(this.openWebApp, 1000);
+    },
+
+    openWebApp: function() {
+      window.location.replace("http://itunesstorelink/");
+    }
+  };
+
+  app.launchApp();
+})();
+
+</script>
+<body>
+
+</body>
+</html>

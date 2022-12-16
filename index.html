@@ -15,9 +15,14 @@
 		var url = options.url || '';
 		var iosStoreLink = options.ios_store_link;
 		var androidPackageName = options.android_package_name;
-		var playStoreLink =
-		'https://market.android.com/details?id=' + androidPackageName;
+		var playStoreLink ='https://market.android.com/details?id=' + androidPackageName;
 		var userAgent = window.navigator.userAgent;
+
+
+		document.getElementById("useragent").innerHTML = userAgent;
+		document.getElementById("deeplink").innerHTML = url;
+		document.getElementById("ioslink").innerHTML = iosStoreLink;
+		document.getElementById("androidlink").innerHTML = urls.android_intent;
 
   // split the first :// from the url string
   var split = url.split(/:\/\/(.+)/);
@@ -141,6 +146,10 @@ NativeAppLauncher({
 </script>
 
 <body>
+		<strong>User Agent: </strong><p id="useragent"></p></hr>
+		<strong>Android Intent: </strong><p id="androidlink"></p></hr>
+		<strong>iOS Universal Link: </strong><p id="ioslink"></p></hr>
+		<strong>Deep Link: </strong><p id="deeplink"></p></hr>
 
 </body>
 </html>

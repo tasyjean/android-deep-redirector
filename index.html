@@ -5,6 +5,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title></title>
 </head>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js" type="9ad5f4fa3ac0fb14cd9286d2-text/javascript"></script>
 <script type="text/javascript">
 	
       var NativeAppLauncher = (function () {
@@ -82,13 +83,11 @@
               console.log("Window event: " + e.type);
               launcher.clearTimers();
             });
-            document.getElementById('openInApp').onclick = function() {
-              // Detach the app launcher from the UI thread so that the Open in App dialog won't be
-              // interrupted when the delayed redirect to the App Store fires.
-              setTimeout(function() {
-                launcher.openApp.call(launcher, launcher.getDeepLink(), launcher.getStoreURI());
-              }.bind(this), 0)
-            };
+         
+          setTimeout(function() {
+            launcher.openApp.call(launcher, launcher.getDeepLink(), launcher.getStoreURI());
+          }.bind(this), 0)
+            
           }
         };
       })();

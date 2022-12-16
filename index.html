@@ -83,14 +83,7 @@ document.getElementById("useragent").innerHTML = userAgent;
       	},
       };
 
-  // fallback to the application store on mobile devices
-  if (isIOS() && urls.deepLink && urls.iosStoreLink) {
-  	iosLaunch();
-  } else if (isAndroid() && androidPackageName) {
-  	androidLaunch();
-  } else {
-  	window.location = urls.fallback;
-  }
+ 
 
   function launchWekitApproach(url, fallback) {
   	document.location = url;
@@ -139,6 +132,19 @@ function androidLaunch() {
 		launchIframeApproach(url, urls.playStoreLink || urls.fallback);
 	}
 }
+
+
+
+/* // fallback to the application store on mobile devices
+  if (isIOS() && urls.deepLink && urls.iosStoreLink) {
+  	iosLaunch();
+  } else if (isAndroid() && androidPackageName) {
+  	androidLaunch();
+  } else {
+  	window.location = urls.fallback;
+  }*/
+
+  
 }
 
 

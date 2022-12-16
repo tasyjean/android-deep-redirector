@@ -25,10 +25,7 @@
 		var userAgent = window.navigator.userAgent;
 
 
-		document.getElementById("useragent").innerHTML = userAgent;
-		document.getElementById("deeplink").innerHTML = url;
-		document.getElementById("ioslink").innerHTML = iosStoreLink;
-		document.getElementById("androidlink").innerHTML = urls.android_intent;
+		
 
   // split the first :// from the url string
   var split = url.split(/:\/\/(.+)/);
@@ -49,6 +46,13 @@
   	playStoreLink: playStoreLink,
   	fallback: fallback,
   };
+
+
+document.getElementById("useragent").innerHTML = userAgent;
+		document.getElementById("deeplink").innerHTML = url;
+		document.getElementById("ioslink").innerHTML = iosStoreLink;
+		document.getElementById("androidlink").innerHTML = urls.android_intent;
+
 
   var isAndroid = function () {
   	return /Android/.test(userAgent);

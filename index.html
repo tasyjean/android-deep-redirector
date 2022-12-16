@@ -9,93 +9,136 @@
 
 
 <script type="text/javascript">
-	
-      var NativeAppLauncher = (function () {
-        var IOS_VERSION_RE = /OS\s+(\d)_/;
-        var timers = [];
-        var userAgent = window.navigator.userAgent;
-        var isAndroid = function () {
-          return /Android/.test(userAgent);
-        };
-        var isIOS = function () {
-          return /(?:i(?:Phone|P(?:o|a)d))/.test(userAgent);
-        };
-        var iOSVersion = function () {
-          return isIOS() ? parseInt(userAgent.match(IOS_VERSION_RE)[1], 10) : 0;
-        };
-        var isChrome = function() {
+
+	function NativeAppLauncher(options) {
+		var fallback = options.fallback || '';
+		var url = options.url || '';
+		var iosStoreLink = options.ios_store_link;
+		var androidPackageName = options.android_package_name;
+		var playStoreLink =
+		'https://market.android.com/details?id=' + androidPackageName;
+		var userAgent = window.navigator.userAgent;
+
+  // split the first :// from the url string
+  var split = url.split(/:\/\/(.+)/);
+  var scheme = split[0];
+  var path = split[1] || '';
+
+  var urls = {
+  	deepLink: url,
+  	iosStoreLink: iosStoreLink,
+  	android_intent:
+  	'intent://' +
+  	path +
+  	'#Intent;scheme=' +
+  	scheme +
+  	';package=' +
+  	androidPackageName +
+  	';end;',
+  	playStoreLink: playStoreLink,
+  	fallback: fallback,
+  };
+
+  var isAndroid = function () {
+  	return /Android/.test(userAgent);
+  };
+  var isIOS = function () {
+  	return /(?:i(?:Phone|P(?:o|a)d))/.test(userAgent);
+  };
+  var iOSVersion = function () {
+  	return isIOS() ? parseInt(userAgent.match(IOS_VERSION_RE)[1], 10) : 0;
+  };
+  var isChrome = function() {
           // Opera (OPR) also identifies itself as Chrome and has to be corrected for.
           // OPR is used on Android but on iOS it is OPiOS where Opera does NOT identify as Chrome. Go figure!
           // Probably because on iOS it is Opera Mini and has all browser have to be based on Safari/WebKit.
           return /Chrome/.test(userAgent) && !/OPR/.test(userAgent);
-        };
-        var isFirefox = function () {
-          return /Firefox/.test(userAgent);
-        };
+      };
+      var isFirefox = function () {
+      	return /Firefox/.test(userAgent);
+      };
 
-        return {
-          // Stop any running timers.
-          clearTimers: function () {
-            console.log("Clearing timers: [" + timers.join(', ') + ']');
-            timers.map(clearTimeout);
-            timers = [];
-          },
-          // Fetch the deep link into the Twitter app.
-          getDeepLink: function () {
-            return isAndroid() && isFirefox() ?
-                "intent://twitter.com/_/status/584046346862100481#Intent;package=com.twitter.android;scheme=https;end;" :
-                "twitter://tweet?id=584046346862100481";
-          },
-          openApp: function (deeplink, storeURI) {
-            var launcher = this;
-            var storeLaunched = false;
-            var gotStoreURI = "string" == typeof storeURI;
-            // If this handler is part of the UI thread, i.e. the `direct` result of a user action then
-            // redirecting to the App Store will happen immediately. When not part of the UI thread however,
-            // the redirect will bring up an Open in App dialog. Unless there is already a dialog showing,
-            // in which case the redirect dialog will wait for the currently shown dialog to be dismissed.
-            gotStoreURI && timers.push(window.setTimeout(function () {
-              console.log('Launching App Store: ' + storeURI);
-              storeLaunched = true;
-              window.top.location = storeURI;
-            }, 1000));
-            isIOS() && timers.push(window.setTimeout(function () {
-              console.log('Reloading page');
-              storeLaunched && window.location.reload()
-            }, 2000));
-            console.log('Launching app: ' + deeplink);
-            window.location = deeplink;
-          },
-          // Get the deep link URI to the Twitter app in the store appropriate for the OS.
-          // Using a deep link guarantees that the app store opens even when using an alternate browser (e.g. Puffin or Firefox)
-          getStoreURI: function () {
-            return isAndroid() ?
-                "market://details?id=com.twitter.android" :
-                "https://itunes.apple.com/app/twitter/id333903271?mt=8";
-          },
-          // Try to launch the native app on iOS/Android. Redirect to the app store if launch fails.
-          init: function () {
-            var launcher = this;
-            var events = ["pagehide", "blur"];
-            if (isIOS() || (isAndroid() && !isChrome())) {
-              events.push("beforeunload");
-            }
-            console.log("Listening window events: " + events.join(", "));
-            $(window).on(events.join(" "), function (e) {
-              console.log("Window event: " + e.type);
-              launcher.clearTimers();
-            });
-         
-          setTimeout(function() {
-            launcher.openApp.call(launcher, launcher.getDeepLink(), launcher.getStoreURI());
-          }.bind(this), 0)
-            
-          }
-        };
-      })();
-      NativeAppLauncher.init();
-    
+
+      var isMobile = {
+      	android: function () {
+      		return /Android/i.test(userAgent);
+      	},
+      	ios: function () {
+      		return /iPhone|iPad|iPod/i.test(userAgent);
+      	},
+      };
+
+  // fallback to the application store on mobile devices
+  if (isIOS() && urls.deepLink && urls.iosStoreLink) {
+  	iosLaunch();
+  } else if (isAndroid() && androidPackageName) {
+  	androidLaunch();
+  } else {
+  	window.location = urls.fallback;
+  }
+
+  function launchWekitApproach(url, fallback) {
+  	document.location = url;
+  	setTimeout(function () {
+  		document.location = fallback;
+  	}, 250);
+  }
+
+  function launchIframeApproach(url, fallback) {
+  	var iframe = document.createElement('iframe');
+  	iframe.style.border = 'none';
+  	iframe.style.width = '1px';
+  	iframe.style.height = '1px';
+  	iframe.onload = function () {
+  		document.location = url;
+  	};
+  	iframe.src = url;
+
+  	window.onload = function () {
+  		document.body.appendChild(iframe);
+
+  		setTimeout(function () {
+  			window.location = fallback;
+  		}, 25);
+  	};
+  }
+
+  function iosLaunch() {
+    // chrome and safari on ios >= 9 don't allow the iframe approach
+    if (
+    	userAgent.match(/CriOS/) ||
+    	(userAgent.match(/Safari/) && userAgent.match(/Version\/(9|10|11|12)/))
+    	) {
+    	launchWekitApproach(urls.deepLink, urls.iosStoreLink || urls.fallback);
+} else {
+	launchIframeApproach(urls.deepLink, urls.iosStoreLink || urls.fallback);
+}
+}
+
+function androidLaunch() {
+	if (isChrome()) {
+		document.location = urls.android_intent;
+	} else if (isFirefox()) {
+		launchWekitApproach(urls.deepLink, urls.playStoreLink || urls.fallback);
+	} else {
+		launchIframeApproach(url, urls.playStoreLink || urls.fallback);
+	}
+}
+}
+
+
+
+
+NativeAppLauncher({
+	url:"https//twitter.com/_/status/584046346862100481",
+	androidPackageName:"com.twitter.android",
+	iosStoreLink:"https://itunes.apple.com/app/twitter/id333903271?mt=8"
+
+})
+
+
 </script>
+
 <body>
 
 </body>

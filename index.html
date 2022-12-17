@@ -9,154 +9,169 @@
 
 
 <body>
-		<strong>User Agent: </strong><p id="useragent"></p></hr>
-		<strong>Android Intent: </strong><p id="androidlink"></p></hr>
-		<strong>iOS Universal Link: </strong><p id="ioslink"></p></hr>
-		<strong>Deep Link: </strong><p id="deeplink"></p></hr>
+	<strong>User Agent: </strong><p id="useragent"></p></hr>
+	<strong>Android Intent: </strong><p id="androidlink"></p></hr>
+	<strong>iOS Universal Link: </strong><p id="ioslink"></p></hr>
+	<strong>Deep Link: </strong><p id="deeplink"></p></hr>
+	<strong>iOS Version: </strong><p id="iosversion"></p></hr>
+	<strong>is Chrome: </strong><p id="ischrome"></p></hr>
 
-<script type="text/javascript">
 
-	function NativeAppLauncher(options) {
-		var fallback = options.fallback || '';
-		var url = options.url || '';
-		var iosStoreLink = options.ios_store_link;
-		var androidPackageName = options.android_package_name;
-		var playStoreLink ='https://market.android.com/details?id=' + androidPackageName;
-		var userAgent = window.navigator.userAgent;
+
+	<script type="text/javascript">
+
+
+		(function() {
+
+			var deepLink="https://twitter.com/bartt/status/584046346862100481";
+			var androidPackageName = "com.twitter.android";
+			var iosStoreLink = "https://itunes.apple.com/app/twitter/id333903271?mt=8";
+
+
+
+
+
+			var playStoreLink = "market://details?id=" + androidPackageName;
+			
+
+			var androidIntent=function(){
+				var split = deepLink.split(/:\/\/(.+)/);
+				var scheme = split[0];
+				var path = split[1] || '';
+
+				return	'intent://' +path +'#Intent;scheme=' +scheme +';package=' +
+				androidPackageName +';end;'
+			}
+
+
+
+
+
+
+			var inBrowser = function(){
+				return typeof window !== 'undefined'
+			} 
+			var UserAgent = function(){
+				return inBrowser() && window.navigator.userAgent.toLowerCase()
+			}
+			var isEdge = function(){
+				return UserAgent && UserAgent.indexOf('edge/') > 0
+			}
+			var isOPRA =  function(){
+				return UserAgent && UserAgent.indexOf('opr') > 0
+			}
+			var isAndroid =  function(){
+				return (UserAgent && UserAgent.indexOf('android') > 0)
+			}
+			var isIOS =  function(){
+				return (UserAgent && /iphone|ipad|ipod|ios/.test(UserAgent))
+			}
+			var isChrome =  function(){
+				return UserAgent && /chrome\/\d+/.test(UserAgent) && !isEdge() && !isOPRA()
+			}
+			var isFirefox =  function(){
+				return UserAgent && UserAgent.match(/firefox\/(\d+)/)
+			}
+			var iOSVersion = function() {
+				return isIOS() ? parseInt(userAgent.match(/os\s+(\d+)_/)[1], 10) : false;
+			}
+
+
+
+
+
+
+	  document.getElementById("useragent").innerHTML = UserAgent();
+  document.getElementById("deeplink").innerHTML = deepLink;
+  document.getElementById("ioslink").innerHTML = iosStoreLink;
+  document.getElementById("androidlink").innerHTML = androidIntent();
+  document.getElementById("iosversion").innerHTML = iOSVersion();
+  document.getElementById("ischrome").innerHTML = isChrome();
+  
+
+
+
+
+
+			function launchWekitApproach(url, fallback) {
+				document.location = url;
+				setTimeout(function () {
+					document.location = fallback;
+				}, 250);
+			}
+
+			function launchIframeApproach(url, fallback) {
+				var iframe = document.createElement('iframe');
+				iframe.style.border = 'none';
+				iframe.style.width = '1px';
+				iframe.style.height = '1px';
+				iframe.onload = function () {
+					document.location = url;
+				};
+				iframe.src = url;
+
+				window.onload = function () {
+					document.body.appendChild(iframe);
+
+					setTimeout(function () {
+						window.location = fallback;
+					}, 25);
+				};
+			}
+
+
+			function iosLaunch() {
+				if (iOSVersion() < 9) {
+					launchIframeApproach(deepLink, iosStoreLink);
+				}
+				else{
+					launchWekitApproach(deepLink, iosStoreLink);
+				}
+
+			}
+
+			function androidLaunch() {
+				if (isChrome()) {
+					document.location = androidIntent();
+				} else if (isFirefox()) {
+					launchWekitApproach(deepLink, playStoreLink);
+				} else {
+					launchIframeApproach(deepLink, playStoreLink);
+				}
+			}
 
 
 		
 
-  // split the first :// from the url string
-  var split = url.split(/:\/\/(.+)/);
-  var scheme = split[0];
-  var path = split[1] || '';
 
-  var urls = {
-  	deepLink: url,
-  	iosStoreLink: iosStoreLink,
-  	android_intent:
-  	'intent://' +
-  	path +
-  	'#Intent;scheme=' +
-  	scheme +
-  	';package=' +
-  	androidPackageName +
-  	';end;',
-  	playStoreLink: playStoreLink,
-  	fallback: fallback,
-  };
-
-
-document.getElementById("useragent").innerHTML = userAgent;
-		document.getElementById("deeplink").innerHTML = url;
-		document.getElementById("ioslink").innerHTML = iosStoreLink;
-		document.getElementById("androidlink").innerHTML = urls.android_intent;
-
-
-  var isAndroid = function () {
-  	return /Android/.test(userAgent);
-  };
-  var isIOS = function () {
-  	return /(?:i(?:Phone|P(?:o|a)d))/.test(userAgent);
-  };
-  var iOSVersion = function () {
-  	return isIOS() ? parseInt(userAgent.match(IOS_VERSION_RE)[1], 10) : 0;
-  };
-  var isChrome = function() {
-          // Opera (OPR) also identifies itself as Chrome and has to be corrected for.
-          // OPR is used on Android but on iOS it is OPiOS where Opera does NOT identify as Chrome. Go figure!
-          // Probably because on iOS it is Opera Mini and has all browser have to be based on Safari/WebKit.
-          return /Chrome/.test(userAgent) && !/OPR/.test(userAgent);
-      };
-      var isFirefox = function () {
-      	return /Firefox/.test(userAgent);
-      };
-
-
-      var isMobile = {
-      	android: function () {
-      		return /Android/i.test(userAgent);
-      	},
-      	ios: function () {
-      		return /iPhone|iPad|iPod/i.test(userAgent);
-      	},
-      };
-
- 
-
-  function launchWekitApproach(url, fallback) {
-  	document.location = url;
-  	setTimeout(function () {
-  		document.location = fallback;
-  	}, 250);
-  }
-
-  function launchIframeApproach(url, fallback) {
-  	var iframe = document.createElement('iframe');
-  	iframe.style.border = 'none';
-  	iframe.style.width = '1px';
-  	iframe.style.height = '1px';
-  	iframe.onload = function () {
-  		document.location = url;
-  	};
-  	iframe.src = url;
-
-  	window.onload = function () {
-  		document.body.appendChild(iframe);
-
-  		setTimeout(function () {
-  			window.location = fallback;
-  		}, 25);
-  	};
-  }
-
-  function iosLaunch() {
-    // chrome and safari on ios >= 9 don't allow the iframe approach
-    if (
-    	userAgent.match(/CriOS/) ||
-    	(userAgent.match(/Safari/) && userAgent.match(/Version\/(9|10|11|12)/))
-    	) {
-    	launchWekitApproach(urls.deepLink, urls.iosStoreLink || urls.fallback);
-} else {
-	launchIframeApproach(urls.deepLink, urls.iosStoreLink || urls.fallback);
-}
-}
-
-function androidLaunch() {
-	if (isChrome()) {
-		document.location = urls.android_intent;
-	} else if (isFirefox()) {
-		launchWekitApproach(urls.deepLink, urls.playStoreLink || urls.fallback);
-	} else {
-		launchIframeApproach(url, urls.playStoreLink || urls.fallback);
-	}
-}
-
-
-
-// fallback to the application store on mobile devices
-  if (isIOS() && urls.deepLink && urls.iosStoreLink) {
-  	iosLaunch();
-  } else if (isAndroid() && androidPackageName) {
-  	androidLaunch();
-  } else {
-  	window.location = urls.fallback;
-  }
-
-
-}
+			if (isIOS() && deepLink && iosStoreLink) {
+				iosLaunch();
+			} 
+			else if (isAndroid && androidPackageName) {
+				androidLaunch();
+			}
+			else {
+					window.location="https://google.com"
+			}
 
 
 
 
-NativeAppLauncher({
-	url:"https://twitter.com/_/status/584046346862100481",
-	android_package_name:"com.twitter.android",
-	ios_store_link:"https://itunes.apple.com/app/twitter/id333903271?mt=8",
-	fallback:"https://google.com"
 
-})
+
+		})();
+
+
+
+
+
+
+
+
+
+
+
+	
 
 
 </script>

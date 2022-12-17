@@ -60,6 +60,7 @@
 				return userAgent && userAgent.indexOf('opr') > 0
 			}
 			var isAndroid =  function(){
+
 				return (userAgent && userAgent.indexOf('android') > 0)
 			}
 			var isIOS =  function(){
@@ -144,12 +145,15 @@
 
 
 			if (isIOS() && deepLink && iosStoreLink) {
+				console.log("is ios")
 				iosLaunch();
 			} 
-			else if (isAndroid && androidPackageName) {
+			else if (isAndroid() && androidPackageName) {
+					console.log("is android")
 				androidLaunch();
 			}
 			else {
+						console.log("is web")
 					window.location="https://google.com"
 			}
 

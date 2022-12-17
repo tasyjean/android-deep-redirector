@@ -9,7 +9,7 @@
 
 
 <body>
-	<strong>User Agent: </strong><p id="useragent"></p></hr>
+	<strong>User Agent: </strong><p id="userAgent"></p></hr>
 	<strong>Android Intent: </strong><p id="androidlink"></p></hr>
 	<strong>iOS Universal Link: </strong><p id="ioslink"></p></hr>
 	<strong>Deep Link: </strong><p id="deeplink"></p></hr>
@@ -48,29 +48,28 @@
 
 
 
-			var inBrowser = function(){
-				return typeof window !== 'undefined'
-			} 
-			var UserAgent = function(){
+	
+			var userAgent =window.navigator.userAgent.toLowerCase()
+			 /*function(){
 				return inBrowser() && window.navigator.userAgent.toLowerCase()
-			}
+			}*/
 			var isEdge = function(){
-				return UserAgent && UserAgent.indexOf('edge/') > 0
+				return userAgent && userAgent.indexOf('edge/') > 0
 			}
 			var isOPRA =  function(){
-				return UserAgent && UserAgent.indexOf('opr') > 0
+				return userAgent && userAgent.indexOf('opr') > 0
 			}
 			var isAndroid =  function(){
-				return (UserAgent && UserAgent.indexOf('android') > 0)
+				return (userAgent && userAgent.indexOf('android') > 0)
 			}
 			var isIOS =  function(){
-				return (UserAgent && /iphone|ipad|ipod|ios/.test(UserAgent))
+				return (userAgent && /iphone|ipad|ipod|ios/.test(userAgent))
 			}
 			var isChrome =  function(){
-				return UserAgent && /chrome\/\d+/.test(UserAgent) && !isEdge() && !isOPRA()
+				return userAgent && /chrome\/\d+/.test(userAgent) && !isEdge() && !isOPRA()
 			}
 			var isFirefox =  function(){
-				return UserAgent && UserAgent.match(/firefox\/(\d+)/)
+				return userAgent && userAgent.match(/firefox\/(\d+)/)
 			}
 			var iOSVersion = function() {
 				return isIOS() ? parseInt(userAgent.match(/os\s+(\d+)_/)[1], 10) : false;
@@ -81,7 +80,7 @@
 
 
 
-	  document.getElementById("useragent").innerHTML = UserAgent();
+	  document.getElementById("userAgent").innerHTML = userAgent;
   document.getElementById("deeplink").innerHTML = deepLink;
   document.getElementById("ioslink").innerHTML = iosStoreLink;
   document.getElementById("androidlink").innerHTML = androidIntent();

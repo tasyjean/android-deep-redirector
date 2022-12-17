@@ -15,7 +15,7 @@
 	<strong>Deep Link: </strong><p id="deeplink"></p></hr>
 	<strong>iOS Version: </strong><p id="iosversion"></p></hr>
 	<strong>is Chrome: </strong><p id="ischrome"></p></hr>
-
+<strong>open web: </strong><p id="web"></p></hr>
 
 
 	<script type="text/javascript">
@@ -87,7 +87,7 @@
   document.getElementById("androidlink").innerHTML = androidIntent();
   document.getElementById("iosversion").innerHTML = iOSVersion();
   document.getElementById("ischrome").innerHTML = isChrome();
-  
+
 
 
 
@@ -155,7 +155,8 @@
 			}
 			else {
 						console.log("is web")
-					window.location="https://google.com"
+				//	window.location="https://google.com"
+				    document.getElementById("web").innerHTML ="YES";
 			}
 
 

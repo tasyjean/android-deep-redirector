@@ -132,7 +132,8 @@
 
 			function androidLaunch() {
 				if (isChrome()) {
-					document.location = androidIntent();
+					
+					launchWekitApproach(androidIntent(), playStoreLink);
 				} else if (isFirefox()) {
 					launchWekitApproach(deepLink, playStoreLink);
 				} else {
@@ -144,7 +145,7 @@
 		
 
 
-			if (isIOS() && deepLink && iosStoreLink) {
+			if (isIOS()  && iosStoreLink) {
 				console.log("is ios")
 				iosLaunch();
 			} 
